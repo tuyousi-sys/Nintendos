@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Library - 1カラムレイアウト</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            background: #1a1a1a; 
+            margin: 0; 
+            padding: 10px; 
+            color: #333; 
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+            overflow: hidden; 
+        }
+        
+        /* ヘッダー */
+        .header { 
+            background: #e60012; 
+            color: white; 
+            padding: 10px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 4px solid #b3000e; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 18px; 
+            letter-spacing: 1px; 
+        }
+        .count-area { 
+            display: flex; 
+            align-items: baseline; 
+            gap: 5px; 
+        }
+        .count-num { 
+            font-size: 32px; 
+            font-weight: 900; 
+            margin: 0; 
+        }
+        .count-unit { 
+            font-size: 14px; 
+            opacity: 0.8; 
+        }
+        
+        /* パネル全体を2列に */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* 左カラム：追加・検索・バックアップ */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel { 
+            padding: 20px; 
+            border: 1px solid #eee; 
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        .section-title { 
+            font-size: 16px; 
+            font-weight: bold; 
+            color: #666; 
+            margin-bottom: 10px; 
+            display: block; 
+        }
+
+        /* 追加ボタンと入力 */
+        .add-input { 
+            width: 100%; 
+            padding: 15px; 
+            border: 3px solid #ddd; 
+            border-radius: 10px; 
+            font-size: 18px; 
+            box-sizing: border-box; 
+            margin-bottom: 10px; 
+        }
+        .btn-add { 
+            background: #e60012; 
+            color: white; 
+            width: 100%; 
+            font-size: 20px; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
+        /* 検索エリア */
+        .search-panel { 
+            padding: 15px; 
+            background: #f0f8ff; 
+            border: 1px solid #d0e8ff;
+            border-radius: 10px;
+        }
+        .search-row { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+        }
+        .search-input { 
+            flex: 1; 
+            padding: 10px 12px; 
+            border: 2px solid #ccc; 
+            border-radius: 6px; 
+            font-size: 16px; 
+        }
+        .btn-search { 
+            background: #333; 
+            color: white; 
+            padding: 10px 15px; 
+            font-size: 14px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+        .btn-reset { 
+            background: #bbb; 
+            color: white; 
+            padding: 10px 15px; 
+            font-size: 14px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+
+        /* バックアップセクション */
+        .backup-panel { 
+            background: #f0faff; 
+            border: 3px dashed #007bff; 
+            border-radius: 15px; 
+            padding: 20px; 
+        }
+        .btn-export { 
+            background: #007bff; 
+            color: white; 
+            width: 100%; 
+            margin-bottom: 10px; 
+            font-size: 18px; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .btn-import { 
+            background: #28a745; 
+            color: white; 
+            width: 100%; 
+            font-size: 18px; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+
+        /* 右カラム：リスト表示（1列グリッド） */
+        .list-area { 
+            height: 1200px; 
+            overflow-y: auto; 
+            background: #fff; 
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            align-content: start;
+        }
+        
+        .item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 15px; 
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+        .item:hover {
+            background: #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .item-name { 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: #000; 
+            flex: 1; 
+            margin-right: 10px;
+            line-height: 1.4;
+        }
+        .btn-del { 
+            color: #ff4d4d; 
+            border: 2px solid #ff4d4d; 
+            padding: 4px 8px; 
+            font-size: 12px; 
+            border-radius: 6px; 
+            background: white; 
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .footer-tools { 
+            padding: 15px; 
+            background: #eee; 
+            text-align: center; 
+            grid-column: 1 / -1;
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .list-area {
+                height: 800px;
+            }
+            .item-name {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🎮 SWITCH LIBRARY</h1>
+        <div class="count-area">
+            <span class="count-num" id="totalCount">0</span>
+            <span class="count-unit">TITLES</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 左カラム：操作パネル -->
+        <div class="left-column">
+            <!-- 追加パネル -->
+            <div class="panel">
+                <span class="section-title">📝 新規追加</span>
+                <input type="text" id="addInput" class="add-input" placeholder="タイトル名を入力...">
+                <button class="btn-add" onclick="addItem()">追加保存 ＋</button>
+            </div>
+
+            <!-- 検索パネル -->
+            <div class="search-panel">
+                <span class="section-title">🔍 検索</span>
+                <div class="search-row">
+                    <input type="text" id="searchInput" class="search-input" placeholder="タイトル名で検索...">
+                    <button class="btn-search" onclick="runSearch()">実行</button>
+                    <button class="btn-reset" onclick="resetSearch()">解除</button>
+                </div>
+            </div>
+
+            <!-- フッターツール -->
+            <div class="footer-tools">
+                <button onclick="forceReset()" style="font-size:12px; padding:8px 15px; background:#888; color:#fff; border:none; border-radius:4px; cursor:pointer;">初期状態に戻す</button>
+            </div>
+        </div>
+
+        <!-- 右カラム：リスト表示（1列グリッド） -->
+        <div class="list-area" id="listArea"></div>
+    </div>
+</div>
+
+<script>
+    // --- 初期データ (200本以上) ---
+    const DEFAULT_DATA = `2045、月より。
+AIR
+BLUE REFLECTION TIE/帝
+Caligula2 -カリギュラ２-
+CLANNAD
+CLANNAD 光見守る坂道で
+CONTRA ROGUE CORPS 魂斗羅 ローグ コープス
+CRISIS CORE -FINAL FANTASY VII- REUNION
+D.C.Re:tune ～ダ・カーポ～ リチューン
+DeepOne
+ENDER LILIES: Quietus of the Knights
+FAMAGIA(ファーマギア)
+Fate/Samurai Remnant
+FINAL FANTASY Ⅰ～Ⅵ COLLECTION MEMORIAL PACKAGE
+FLOWERS 四季
+FREDERICA(フレデリカ)
+Harmonia
+HHG 女神の終焉
+JINKI Infinity
+JINKI RESURRECHION ジンキ・リザレクション
+JUMP FORCE デラックスエディション
+Kanon
+KINGDOM HEARTS Melody of Memory
+Kizuna AI - Touch the Beat！
+LITTLE NIGHTMARES Ⅱ -リトルナイトメア2- 
+LITTLE NIGHTMARES -リトルナイトメア- デラックスエディション
+LOOP8(ループ８)
+MAGLAM LORD / マグラム ロード
+METAL GEAR：MASTER COLLEDCTION Vol.1
+MuSIGuS!
+NINJA GAIDEN：マスターコレクション
+ONE PIECE ODYSSEY デラックスエディション
+ONE PIECE 海賊無双４
+Pokemon LEGENDS アルセウス
+RE:D Cherishi
+Re:ゼロから始める異世界生活 偽りの王選候補
+REYNATIS！レナティス
+RWBY アロウフェル
+SD シン・仮面ライダー 乱舞
+SDガンダム ジージェネレーション クロスレイズ
+SDガンダム バトルアライアンス
+SNKヒロインズ Tag Team Frenzy
+Strawberry Nauts -ストロベリーノーツ-
+SUPER BOMBERMAN R スーパーボンバーマンR
+The DioField Chronicle
+THE KING OF FIGHTERS XⅤ GLOBAL MATCH
+アーキタイプ・アーカディア
+アークオブアルケミスト for Nintendo Switch
+アイドル雀士スーチーパイ サターントリビュート
+アオナツライン
+アサツグトリ
+アズールレーン クロスウェーブ
+アストラルチェイン
+アナザーコード リフレクション：2つの記憶＋記憶の扉
+アノニマス・コード
+イース・メモワール -セルセタの樹海-
+イース・メモワール -フェルガナの誓い-
+いけにえと雪のセツナ
+インフィニティ ストラッシュ ドラゴンクエスト ダイの大冒険
+ウィッチスガーデン
+エヴァーメイデン　～堕落の園の乙女たち～
+エンドリング - エクスティンクション イズ フォーエバー
+オクトパストラベラー
+オクトパストラベラーⅡ
+オバケイドロ！
+オメガラビリンス ライフ
+ガールズフランティッククラン
+カプコン ファイティング コレクション
+カプコン ベルトアクション コレクション
+かまいたちの夜×3
+ガラス姫と鏡の従者
+カルマルカ＊サークル
+キストリロジー
+キャサリン・フルボディ for Nintendo Switch
+キルラキル ザ・ゲーム - 異布 -
+クダンノフォークロア
+クドわすたー Converted Edtion
+クライマキナ　/　CRYMACHINA
+グリザイア ファントムトリガー 01 to 05
+グリザイア ファントムトリガー 5.5 to 08
+グリザイアの果実・迷宮・楽園 フルパッケージ
+クロックタワー・リワインド
+けものみち☆ガーリッシュスクエア
+コットン ガーディアンフォース サターントレビュート
+この世の果てで恋を唄う少女YU-NO
+ザ・ランブルフィッシュ2
+サガ エメラルド ビヨンド
+シャイニング・レゾナンス リフレイン ◎
+シャドウバース チャンピオンズバトル
+シャドウバース チャンピオンズバトル レジェンダリーエディション
+シロナガス島への帰還
+じんるいのみなさんへ
+スーパーバレットブレイク
+スーパーマリオ 3Dコレクション
+スーパーマリオ 3Dワールド＋フューリーワールド
+スーパーマリオRPG
+スーパーマリオブラザーズ ワンダー
+スーパーロボット大戦30
+スーパーロボット大戦T
+スーパーロボット大戦V
+スーパーロボット大戦X
+スターオーシャン セカンドストーリー R
+ゼノブレイド2
+ゼノブレイド2 黄金の国イーラ
+ゼノブレイド3
+ゼルダの伝説 ティアーズ オブ ザ キングダム
+ゼルダの伝説 ブレス オブ ザ ワイルド
+ゼルダの伝説 知恵のかりもの
+ゼルダ伝説 スカイウォーズ HD
+ゼルダ無双 ハイラルオールスターズDX
+ゼルダ無双 厄災の黙示録
+ソードアート・オンライン フェイタル・バレットCOMPLETE EDTION
+ソードアート・オンライン -ホロウ・リアリゼーション- DELUXE EDTION
+ソニックフロンティア
+その日の獣には、
+ダウンタウン熱血物語SP
+タクティクスオウガ リボーン
+ダブルドラゴンコレクション
+ダンガンロンパ トリロジーパック + ハッピーダンガンロンパS 超高校級の南国サイコロ合宿
+チョコボGP
+テイルズ オブ グレイセス エフ リマスター
+テイルズ オブ シンフォニア リマスター
+デジモンサヴァイブ
+デッド オア スクール ◎
+トライアングルストラテジー
+ドラゴンクエスト 9 S ◎
+ドラゴンクエスト トレジャーズ 蒼き瞳と大空の羅針盤
+ドラゴンクエストⅢ そして伝説へ…
+ドラゴンクエストヒーローズⅠ&Ⅱ for Nintendo Switch ◎
+ドラゴンボールZKAKAROT + 新たなる覚醒セット
+トリスティア リストア
+トリニティ レガシー
+ニーア オートマタ ジ エンド オブ ヨルハ エディション
+ハーヴェストオーバーレイ + 彼女はオレからはなれない
+ハジラブ -Making*Lovers-
+パワプロクンポケットR
+ピクミン1+2
+ピクミン3 デラックス ◎
+ピクミン4 ◎
+ファイナルファンタジー・クリスタルクロニクル リマスター
+ファイヤーエムブレム エンゲージ
+ファイヤーエムブレム 風花雪月
+ファイヤーエムブレム無双
+ファイヤーエムブレム無双 風花雪月
+ファミコン探偵倶楽部 笑み男
+フォワード・トゥ・ザ-スカイ FORWARD TO THE SKY
+ふたごうさぎのご近所ツーリズモ
+ふゆから、くるる。
+プライミニスター
+プログレスオーダーズ
+フロントミッション ザ・ファースト：リメイク
+ベヨネッタ
+ベヨネッタ2
+ベヨネッタ3
+ペルソナ5 ザ・ロイヤル
+ポケットモンスター シャイニングパール
+ポケットモンスター ブリリアントダイヤモンド
+ポケモンモンスター スカーレット
+ポケモンモンスター バイオレット
+マリオ＆ルイージRPG　ブラザーシップ！
+マリオ＋ラビッツ ギャラクシーバトル
+マリオカート8 デラックス
+メタリックチャイルド
+メトロイド ドレッド
+メトロイドプライム リマスター
+メモリーズオフ イノサンフィーユ
+モナーク！Manark
+やはりゲームでも俺の青春ラブコメはまちがっている。＆続 おまとめセット
+ヤマノススメ Next Summit ～あの山に、もう1度～
+ライブアライブ
+リアセカイ
+ルイージマンション２ HD
+ルイージマンション3
+ローズ島戦記 -ディードリット・イン・ワンダーラビリンス-
+ロックマンエグゼ アドバンスコレクション
+ロボティクス・ノーツ お得セット
+ロボティクス・ノーツ ダッシュ
+ロマンシング サガ２ リベンジオブザセブン
+ロリポップチェーンソー リポップ
+ワールドエンド・シンドローム
+伊達政宗は眠らない - From AI:ソムニウムファイル
+英雄伝説 閃の軌跡Ⅰ：改 -Thors Military Academy 1204-
+英雄伝説 閃の軌跡Ⅱ：改 -The Erebonian Civil War-
+英雄伝説 閃の軌跡Ⅲ
+英雄伝説 碧の軌跡：改
+英雄伝説 零の軌跡：改
+英雄伝説 黎の軌跡 for Nitendo Switch
+英雄伝説 黎の軌跡Ⅱ for Nitendo Switch
+果つることなき未来ヨリ
+奇々怪界 黒マントの謎
+帰ってきた 名探偵ピカチュウ
+逆転裁判1&2 御剣セレクション
+逆転裁判４５６ 成歩堂セレクション
+月の彼方で逢いましょう
+剣と魔法と学園クエスト。
+幻想水滸伝Ⅰ＆Ⅱ HDリマスター
+五等分の花嫁 ことぱずストーリー
+罪ノ光ランデヴー
+十三機兵防衛圏
+初恋サンカイメ
+女鬼橋二 釈魂路
+新すばらしきこのせかい
+新宿葬命
+真 流行り神 1・2パック
+真・女神転生Ⅲ NOCTUREN HD REMASTER
+神箱 -Mythotlogy of Cube-
+神様のような君へ
+制服カノジョ
+制服カノジョ 2
+制服カノジョ 2.5
+制服カノジョ　まよいこエンゲージ
+星のカービィ ディスカバリー ◎
+聖剣伝説3 トライアルズ オブ マナ
+聖剣伝説コレクション
+聖塔神記 トリニティトリガー
+雪ん娘大旋風～さゆきとこゆきのひえひえ大旋風～
+千の刃濤、桃花染の皇姫
+大乱闘スマッシュブラザーズ SPECIAL
+智代アフター～It's a Wonderfull Life～CS Edition
+超次次元ゲイム ネプテューヌ Re;Birth1
+超次次元ゲイム ネプテューヌ Re;Birth2 SISTERS GENERATION
+超次次元ゲイム ネプテューヌ Re;Birth3 V CENTURY
+超探偵事件簿 レインコード
+天穂のサクナヒメ
+都市伝説解体センター
+東亰ザイコデミック 公安調査庁特別事象科学情報分析室 特殊捜査事件簿
+東京ザナドゥeX+ for Nintendo Switch
+桃太郎電鉄 ～昭和 平成 令和も定番！～
+桃太郎電鉄ワールド ～地球は希望でまわってる！～
+那由多の軌跡 アド・アストラ
+百英雄伝
+風のクロノア 1&2アンコール
+放課後シンデレラ
+放課後シンデレラ2
+魔界戦記ディスガイア5
+魔界戦記ディスガイア6
+魔界戦記ディスガイア7
+密室のサクリファリス！ABYSS OF SACRIFICE
+夢幻戦士ヴァリス COLLECTION
+夢現Re:Master Bundle pack
+冥契のルペルカリア
+悠久のカンパネラ
+有翼のフロイライン Wing of Darkness
+遊戯王 アーリーデイズコレクション
+遊戯王ラッシュデュエル 最強バトルロイヤル!!
+陽春白雪Lyrica＆続陽春白雪 綺星諧調Lyrica2 Stars Align
+螺旋麗嬢スパイラル御嬢様 超髪のマキナ
+零 ～濡鴉の巫女～
+恋する彼女の不器用な舞台
+滄海天記
+アルカナ・アルケミア
+冤罪執行遊戯ユルキル
+ペルソナ５　タクティカ
+AMBITIOUS MISSON
+黄昏に潜む梟と、明け方の昴
+bitter smile.
+屍喰らいの冒険メシ
+シロガネ×スピリッツ！
+魔法使いの嫁 盛夏の幻と夢見る旅路
+重装機兵レイノス２ サターントリビュート
+planetarian ～ちいさなほしのゆめ＆雪園球～
+HIGHSPEED Etolie paddock  Stories
+魔道物語 フィアと不思議な学校
+CRYSTAR -クライスタ-
+イースX - ノーディクス -
+おかゆにゅ～～む！R
+おかゆにゅ～～む！
+ハテナの塔 -The Tower of Children-
+ポーショノミクス シルヴィアの魔法薬店
+ゼノブレイドクロス ディフィニティブエディション
+スーパーマリオ オデッセイ
+戦国†恋姫X ~乙女絢爛☆戦国絵巻~ 北条家騒乱編`.split('\n').filter(t => t.trim());
+
+    const STORAGE_KEY = "switch_2column_v2";
+    let masterList = [];
+
+    function init() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && JSON.parse(saved).length > 0) {
+            masterList = JSON.parse(saved);
+        } else {
+            masterList = [...DEFAULT_DATA];
+        }
+        render();
+    }
+
+    function render(keyword = "") {
+        const listArea = document.getElementById('listArea');
+        const countDisplay = document.getElementById('totalCount');
+        listArea.innerHTML = "";
+
+        let displayList = masterList.filter(t => t.toLowerCase().includes(keyword.toLowerCase()));
+        displayList.sort((a, b) => a.localeCompare(b, 'ja'));
+
+        displayList.forEach((name, i) => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `<span class="item-name">${name}</span>
+                             <button class="btn-del" onclick="deleteItem('${name.replace(/'/g, "\\'")}')">削除</button>`;
+            listArea.appendChild(div);
+        });
+
+        countDisplay.innerText = masterList.length;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(masterList));
+    }
+
+    function addItem() {
+        const input = document.getElementById('addInput');
+        if (input.value.trim()) {
+            masterList.push(input.value.trim());
+            input.value = "";
+            render();
+        }
+    }
+
+    function runSearch() {
+        render(document.getElementById('searchInput').value.trim());
+    }
+
+    function resetSearch() {
+        document.getElementById('searchInput').value = "";
+        render();
+    }
+
+    function deleteItem(target) {
+        if (confirm(`「${target}」を削除しますか？`)) {
+            masterList = masterList.filter(t => t !== target);
+            render();
+        }
+    }
+
+    function exportToFile() {
+        const data = JSON.stringify(masterList, null, 2);
+        const blob = new Blob([data], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        a.href = url; 
+        a.download = `switch_list_${date}.txt`;
+        a.setAttribute('download', `switch_list_${date}.txt`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function triggerFilePicker() { document.getElementById('fileInput').click(); }
+
+    function importFromFile(files) {
+        if (files.length === 0) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data)) {
+                    if (confirm(`${data.length}件を読み込みます。上書きしてよろしいですか？`)) {
+                        masterList = data; render(); alert("完了しました！");
+                    }
+                }
+            } catch (err) { alert("正しいファイルではありません。"); }
+        };
+        reader.readAsText(files[0]);
+    }
+
+    function forceReset() {
+        if (confirm("初期状態に戻しますか？")) { localStorage.removeItem(STORAGE_KEY); init(); }
+    }
+
+    init();
+</script>
+
+</body>
+</html>
