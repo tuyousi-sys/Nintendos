@@ -283,10 +283,6 @@
                 <input type="file" id="fileInput" style="display:none" onchange="importFromFile(this.files)">
             </div>
 
-            <!-- フッターツール -->
-            <div class="footer-tools">
-                <button onclick="forceReset()" style="font-size:12px; padding:8px 15px; background:#888; color:#fff; border:none; border-radius:4px; cursor:pointer;">初期状態に戻す</button>
-            </div>
         </div>
 
         <!-- 右カラム：リスト表示（1列グリッド） -->
@@ -637,10 +633,6 @@ THE KING OF FIGHTERS XⅤ GLOBAL MATCH
             } catch (err) { alert("正しいファイルではありません。"); }
         };
         reader.readAsText(files[0]);
-    }
-
-    function forceReset() {
-        if (confirm("初期状態に戻しますか？")) { localStorage.removeItem(STORAGE_KEY); init(); }
     }
 
     init();
